@@ -1,0 +1,159 @@
+<!Doctype html>
+<html>
+
+<head>
+    <title>Newspaper List</title>
+    <style>
+        html,
+        body {
+            margin-top: 100px;
+        }
+        
+        html {
+            display: table;
+            width: 100%;
+        }
+        
+        body {
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+    </style>
+    <script type="text/javascript">
+        function GetXml() {
+            var urlValue = document.getElementById("urlInput").value;
+            if (urlValue.length === 0 || urlValue.trim() == "") {
+                alert("Please enter filename in textbox");
+                return;
+            } else {
+                var XMLDoc = loadXML(urlValue);
+                if (parseError(XMLDoc) > 0) {
+                    alert("Error in XML Document");
+                } else {
+                    parseXml(XMLDoc);
+                }
+            }
+        }
+
+        function parseError(Doc) {
+            var parser = new DOMParser(),
+                errorneousParse = parser.parseFromString('<', 'text/xml'),
+                parsererrorNS = errorneousParse.getElementsByTagName("parsererror")[0].namespaceURI;
+
+            if (parsererrorNS === 'http://www.w3.org/1999/xhtml') {
+                return Doc.getElementsByTagName("parsererror").length > 0;
+            }
+
+            return Doc.getElementsByTagNameNS(parsererrorNS, 'parsererror').length;
+        }
+
+        function loadXML(url) {
+            var xmlDoc;
+            if (window.XMLHttpRequest) {
+                // code for IE7+, Firefox, Chrome, Opera, Safari
+                xmlhttp = new XMLHttpRequest();
+            } else {
+                // code for IE6, IE5
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function() {
+                if (this.status == 404) {
+                    alert("File Not found");
+                }
+            };
+            xmlhttp.open('GET', url, false);
+            xmlhttp.send();
+            xmlDoc = xmlhttp.responseXML;
+            return xmlDoc;
+
+        }
+
+
+
+        function parseXml(XMLDoc) {
+            ELEMENT_NODE = 1;
+            var htmlText = "<html><head><title>Table</title></head><body style=\"width:800px;\"><table border='2'><col width=\"60\"><col width=\"150\"><col width=\"100\"><col width=\"80\"><col width=\"250\"><tr>";
+            root = XMLDoc.documentElement;
+            if (XMLDoc.getElementsByTagName("Row").length > 0) {
+
+
+                header = XMLDoc.getElementsByTagName("Header");
+                headerElements = header[0].childNodes;
+                for (i = 0; i < headerElements.length; i++) {
+                    if (headerElements.item(i).nodeType == ELEMENT_NODE) {
+                        htmlText += "<th>" + headerElements.item(i).textContent + "</th>";
+                    }
+                }
+                htmlText += "</tr>"
+                Table = root.getElementsByTagName("Table");
+                NewspaperList = Table[0].children;
+                for (i = 1; i < NewspaperList.length; i++) {
+                    NewspaperListElements = NewspaperList.item(i).children;
+                    htmlText += "<tr>";
+                    for (j = 0; j < NewspaperListElements.length; j++) {
+                        CurrentElement = NewspaperListElements.item(j);
+
+                        if (CurrentElement.nodeType == ELEMENT_NODE) {
+                            if (CurrentElement.nodeName.toLowerCase().localeCompare("homepage") == 0) {
+
+                                htmlText += "<td><a href=\"" + CurrentElement.textContent + "\">" + CurrentElement.textContent + "</a>  </td>";
+                            } else if (CurrentElement.nodeName.toLowerCase().localeCompare("logo") == 0) {
+
+                                htmlText += "<td><img style=\"width:250px;height:150px;\" src=\"" + CurrentElement.textContent + "\" /> </td>";
+                            } else if (CurrentElement.nodeName.toLowerCase().localeCompare("location") == 0) {
+                                LocationChildren = CurrentElement.children;
+                                htmlText += "<td>";
+                                if (LocationChildren.length == 1) {
+                                    htmlText += LocationChildren[0].textContent;
+                                } else if (LocationChildren.length == 2) {
+                                    if (LocationChildren[0].textContent.trim() == "") {
+                                        if (LocationChildren[1].textContent.trim() == "") {
+                                            htmlText += "<ul><li>" + "N/A" + "</li><li>" + "N/A" + "</li></ul>";
+                                        } else {
+                                            htmlText += "<ul><li>" + "N/A" + "</li><li>" + LocationChildren[1].textContent.trim() + "</li></ul>";
+                                        }
+                                    } else {
+                                        if (LocationChildren[1].textContent.trim() == "") {
+                                            htmlText += "<ul><li>" + LocationChildren[0].textContent.trim() + "</li><li>" + "N/A" + "</li></ul>";
+                                        } else {
+                                            htmlText += "<ul><li>" + LocationChildren[0].textContent.trim() + "</li><li>" + LocationChildren[1].textContent.trim() + "</li></ul>";
+                                        }
+                                    }
+
+
+                                }
+
+
+                                htmlText += "</td>";
+                            } else {
+                                htmlText += "<td>" + CurrentElement.textContent + "</td>";
+                            }
+                        }
+                    }
+                    htmlText += "</tr>"
+                }
+
+                htmlText += "</table> <noscript></noscript></body></html>"
+                hwin = window.open("", "HW4", "scrollbars=1,height=800,width=840");
+                hwin.document.write(htmlText);
+            } else {
+                alert("No Newspapers in XML file");
+            }
+        }
+
+    </script>
+</head>
+
+<body>
+    <h3>Enter URL for Newspaper List XML File</h3>
+    <form>
+        <input type="text" id="urlInput" /><br/><br/>
+        <input type="submit" value="Submit Query" onclick="GetXml()" />
+    </form>
+    <noscript></noscript>
+</body>
+
+</html>
