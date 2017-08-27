@@ -1,0 +1,7 @@
+Website Displays Congress Men categorised based on House,Senate and state
+It also Displays Committess and their Data, Bills and their amendments
+User can save their favourites in all the above 3 categories.
+Website is hosted on AWS EC2 platform.
+Back-end scripting is done in PHP.Data is retreived in JSON format from Congress API.
+Bootstrap is used for Responsive Web Design.
+AJAX,Angula JS and Jquery are used for smoother data retrieval.
