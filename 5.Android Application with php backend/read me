@@ -1,0 +1,7 @@
+Android Application
+Displays Congress men information, categorising them based on State,House and senate.
+Displays Bill details and amendments
+Displays Commitees
+Have option to save favourites and have them handy
+-Retreives live data from Congress API
+-PHP server side scripting
